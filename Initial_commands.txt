@@ -1,0 +1,79 @@
+
+
+ip address:34.211.191.66
+
+DOWNLOAD THE DATASET
+
+Downloading Listings files:
+1.We need to download the Airbnb Ratings,New York and Los Angeles Listings files from the Kaggle website. Below is the URL of the 3 files from the Kaggle website,
+https://www.kaggle.com/samyukthamurali/airbnb-ratings-dataset
+Click on the Download button and a zip file airbnb-ratings-dataset.zip is downloaded into your local system.
+
+
+2.We need to upload this zip file into remote node of AWS EMR using SCP.
+
+    scp Desktop/5200_project/airbnb-ratings-dataset.zip smurali2@34.211.191.66:/home/smurali2
+
+3. Unzip this file using the unzip command,
+unzip airbnb-ratings-dataset.zip
+ 
+
+4.We need to download the following files using wget shell command in the remote node of AWS EMR
+
+a. Airbnb Reviews file:
+ wget -O Airbnb_Reviews.csv https://public.opendatasoft.com/explore/dataset/airbnb-reviews/download/format=csv&timezone=America/Los_Angeles&lang=en&use_labels_for_header=true&csv_separator=%3B
+
+b.New York Review Dates file:
+ wget -O NY_Review_Dates.csv http://data.insideairbnb.com/united-states/ny/new-york-city/2020-03-13/visualisations/reviews.csv
+
+c.Los Angeles Review Dates file:
+ wget -O LA_Review_Dates.csv http://data.insideairbnb.com/united-states/ca/los-angeles/2020-03-13/visualisations/reviews.csv
+
+
+5.Once the files are available we need to create a directory in HDFS called ‘airbnb_dataset’.
+hdfs dfs -mkdir airbnb_dataset
+
+a.Create a sub-directory under airbnb_dataset as ‘airbnb_ratings’
+hdfs dfs -mkdir airbnb_dataset/airbnb_ratings
+
+b.Put the airbnb-ratings-new.csv file from the home directory to airbnb_dataset/airbnb_ratings directory.
+
+hdfs dfs -put airbnb_ratings_new.csv airbnb_dataset/airbnb_ratings
+
+
+6.
+a.Create a sub-directory named ‘airbnb_reviews’ under airbnb_dataset
+hdfs dfs -mkdir airbnb_dataset/airbnb_reviews
+
+b.Put the Airbnb_Reviews.csv file from the home directory to airbnb_dataset/airbnb_reviews directory.
+hdfs dfs -put Airbnb_Reviews.csv airbnb_dataset/airbnb_reviews
+
+
+
+7.
+a.Create a sub-directory named ‘LA_Listings’ under airbnb_dataset
+hdfs dfs -mkdir airbnb_dataset/LA_Listings
+
+b.Put the LA_Listings.csv file into the LA_Listings directory using the below commands,
+hdfs dfs -put LA_Listings.csv airbnb_dataset/LA_Listings
+
+8.Similarly,
+
+a.Create a sub-directory named ‘NY_Listings’ under airbnb_dataset
+hdfs dfs -mkdir airbnb_dataset/NY_Listings
+hdfs dfs -put NY_Listings.csv airbnb_dataset/NY_Listings
+
+
+b.Create a sub-directory named ‘LA_Review_Dates’ under airbnb_dataset
+hdfs dfs -mkdir airbnb_dataset/LA_Review_Dates
+hdfs dfs -put LA_Review_Dates.csv airbnb_dataset/LA_Review_Dates
+
+
+c.
+hdfs dfs -mkdir airbnb_dataset/NY_Review_Dates
+hdfs dfs -put NY_Review_Dates.csv airbnb_dataset/NY_Review_Dates
+
+
+
+
+      
