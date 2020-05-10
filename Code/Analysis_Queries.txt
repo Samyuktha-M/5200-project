@@ -1,0 +1,100 @@
+-- Listings in various countries
+
+CREATE TABLE Listings_Count_World ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' LOCATION '/user/smurali2/Listings_Count_World' AS SELECT COUNT(Listing_ID) AS No_Of_Listings,Country FROM Airbnb_Ratings GROUP BY Country ORDER BY No_Of_listings DESC;
+
+-- Listings in various US States
+
+CREATE TABLE Listings_Count_US ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' LOCATION '/user/smurali2/Listings_Count_US' AS SELECT COUNT(Listing_ID) AS No_Of_Listings,State FROM airbnb_ratings WHERE Country='United States' GROUP BY State HAVING No_Of_Listings>100 ORDER BY No_Of_Listings Desc;
+
+-- Creating a table to union the New York Review Dates
+
+CREATE TABLE NY_Dates ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' STORED AS TEXTFILE LOCATION
+'/user/smurali2/NY_Dates' AS SELECT DISTINCT NY.Listing_ID,NR.Review_Date FROM NY_Listings NY,NY_Review_Dates NR WHERE NY.Listing_ID=NR.Listing_ID
+UNION DISTINCT
+SELECT DISTINCT NY.Listing_ID,ar.Date_Of_Review FROM airbnb_reviews ar,NY_Listings NY WHERE ar.Listing_ID=NY.Listing_ID ORDER BY Review_Date;
+
+-- Bookings in NYC
+
+CREATE TABLE NY_Bookings ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' STORED AS TEXTFILE LOCATION '/user/smurali2/NY_Bookings' AS SELECT nyl.Listing_ID,nyl.Latitude,nyl.Longitude, nyl.City,nyl.Neighbourhood,nyd.Review_Date FROM NY_Listings nyl,NY_Dates nyd WHERE nyl.Listing_ID=nyd.Listing_ID ORDER BY City;
+
+--Creating a table to union the Los Angeles County Review Dates
+
+CREATE TABLE LA_Dates ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' STORED AS TEXTFILE LOCATION '/user/smurali2/LA_Dates' AS 
+SELECT DISTINCT LA.Listing_ID,LR.Review_Date FROM LA_Listings LA,LA_Review_Dates LR WHERE LA.Listing_ID=LR.Listing_ID
+UNION DISTINCT
+SELECT DISTINCT LA.Listing_ID,ar.Date_Of_Review FROM airbnb_reviews ar,LA_Listings LA WHERE ar.Listing_ID=LA.Listing_ID ORDER BY Review_Date;
+
+--Bookings in LA County
+
+CREATE TABLE LA_Bookings ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' STORED AS TEXTFILE LOCATION '/user/smurali2/LA_Bookings' AS SELECT lal.Listing_ID,lal.Latitude,lal.Longitude,lal.Neighbourhood,ld.Review_Date FROM LA_Listings lal,LA_Dates ld WHERE lal.Listing_ID=ld.Listing_ID ORDER BY Neighbourhood;
+
+--Bookings for Apartments in NYC
+
+CREATE TABLE NY_Apt ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' STORED AS TEXTFILE LOCATION '/user/smurali2/NY_Apt' AS SELECT nyl.Listing_ID,nyl.Latitude,nyl.Longitude, nyl.City,nyl.Neighbourhood,nyl.Property_Type,nyd.Review_Date FROM NY_Listings nyl,NY_Dates nyd WHERE nyl.Listing_ID=nyd.Listing_ID AND nyl.Property_Type='Apartment' ORDER BY City;
+
+--Bookings for all types of properties in NYC
+
+CREATE TABLE NY_Properties ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' STORED AS TEXTFILE LOCATION '/user/smurali2/NY_Properties' AS SELECT COUNT(Listing_ID) AS No_Of_Listings,Property_Type,YEAR(review_date) AS year,Date_Format(review_date,'MMM') AS Month FROM (SELECT nyl.Listing_ID,nyl.Property_Type,nyd.review_date FROM NY_Listings nyl,NY_Dates nyd where nyl.Listing_ID=nyd.Listing_ID ORDER BY Listing_ID) a group by YEAR(review_date),Date_Format(review_date,'MMM'),Property_Type ORDER BY Property_Type;
+
+--Bookings for House in LA
+
+CREATE TABLE LA_House ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' STORED AS TEXTFILE LOCATION '/user/smurali2/LA_House' AS SELECT la.Listing_ID,la.Latitude,la.Longitude,la.Neighbourhood,lad.Review_Date FROM LA_Listings la,LA_Dates lad WHERE la.Listing_ID=lad.Listing_ID AND la.Property_Type='House' ORDER BY Neighbourhood;
+
+--Bookings for all types of properties in LA
+
+CREATE TABLE LA_Properties ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' STORED AS TEXTFILE LOCATION '/user/smurali2/LA_Properties' AS
+SELECT COUNT(Listing_ID) As No_Of_Listings,Property_Type,Review_Date FROM
+(SELECT ll.Listing_ID,ll.Property_Type,ld.review_date FROM LA_Listings ll,LA_Dates ld where ll.Listing_ID=ld.Listing_ID ORDER BY Listing_ID) a group by Review_Date,Property_Type ORDER BY Property_Type;
+
+--Distribution of Listings in NYC
+
+CREATE TABLE NY_Distribution ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' STORED AS TEXTFILE LOCATION '/user/smurali2/NY_Distribution' AS SELECT Count(Listing_ID) AS Total_Listings,City,Neighbourhood FROM ny_listings GROUP BY City,Neighbourhood ORDER BY City;
+
+--Distribution of Listings in LA
+
+CREATE TABLE LA_Distribution ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' STORED AS TEXTFILE LOCATION '/user/smurali2/LA_Distribution' AS SELECT Count(Listing_ID) AS Total_Listings,Neighbourhood FROM LA_listings GROUP BY Neighbourhood;
+
+-- Revenue of neighborhoods in NYC
+
+CREATE TABLE NY_Revenue ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' STORED AS TEXTFILE LOCATION   '/user/smurali2/NY_Revenue' AS SELECT SUM(ny.min_nights * ny.Price * nyd.No_Of_Bookings) AS Revenue,nyd.Month,ny.City,ny.Neighbourhood FROM ny_listings ny,(SELECT Listing_ID,COUNT(*) AS No_Of_Bookings,date_format(review_date,'MMM') AS Month FROM ny_dates GROUP BY Listing_ID,date_format(review_date,'MMM')) nyd WHERE ny.Listing_ID=nyd.Listing_ID GROUP BY ny.City,ny.Neighbourhood,nyd.Month ORDER BY ny.City;
+
+--Revenue of neighborhoods in LA
+
+CREATE TABLE LA_Revenue ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' STORED AS TEXTFILE LOCATION '/user/smurali2/LA_Revenue' AS SELECT SUM(la.min_nights*la.Price*lad.No_Of_Bookings) AS Revenue,lad.Month,la.Neighbourhood FROM la_listings la,(SELECT Listing_ID,COUNT(*) AS No_Of_Bookings,date_format(review_date,'MMM') AS Month FROM LA_Dates GROUP BY Listing_ID,date_format(review_date,'MMM')) lad WHERE la.Listing_ID=lad.Listing_ID GROUP BY la.Neighbourhood,lad.Month ORDER BY la.Neighbourhood;
+
+--Price of Listings in NYC
+
+CREATE TABLE NY_Price ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' STORED AS TEXTFILE LOCATION '/user/smurali2/NY_Price' AS Select Price,Review_Scores_location AS Location_Score,City,Neighbourhood,Latitude,Longitude FROM NY_Listings ORDER BY Neighbourhood;
+
+--Average price of each property type in NYC
+
+CREATE TABLE NY_Price_Type ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' STORED AS TEXTFILE LOCATION '/user/smurali2/NY_Price_Type' AS SELECT COUNT(Listing_ID) AS No_Of_Listings,City,Neighbourhood,Property_Type,AVG(Price) AS Average_Price FROM NY_Listings GROUP BY City,Neighbourhood,Property_Type;
+
+--Number of Listings for each price in NYC
+
+CREATE TABLE NY_PriceListing ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' STORED AS TEXTFILE LOCATION '/user/smurali2/NY_PriceListing' AS SELECT COUNT(Listing_ID) AS No_Of_Listings,City,Price FROM NY_Listings GROUP BY City,Price;
+
+--LA Bedroom configuration Demand/Supply Ratio
+
+CREATE TABLE LA_Bedrooms ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' STORED AS TEXTFILE LOCATION '/user/smurali2/LA_Bedrooms' AS SELECT Bedrooms,COUNT(distinct la.Listing_ID) AS No_Of_Listings,COUNT(Review_Date) AS NO_Of_Bookings,(COUNT(Review_Date)/COUNT(distinct la.Listing_ID)) AS Ratio FROM LA_Listings la,LA_Dates lad WHERE la.Listing_ID=lad.Listing_ID AND Bedrooms IS NOT NULL Group By Bedrooms;
+
+-- LA Guest group configuration Demand/Supply Ratio
+
+CREATE TABLE LA_Accommodates ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' STORED AS TEXTFILE LOCATION '/user/smurali2/LA_Accommodates' AS SELECT Accommodates,COUNT(distinct la.Listing_ID) AS No_Of_Listings,COUNT(Review_Date) AS NO_Of_Bookings,(COUNT(Review_Date)/COUNT(distinct la.Listing_ID)) AS Ratio FROM LA_Listings la,LA_Dates lad WHERE la.Listing_ID=lad.Listing_ID AND Accommodates IS NOT NULL Group By Accommodates;
+
+--LA Listings for Superhost analysis
+
+CREATE TABLE Superhost_LA ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' STORED AS TEXTFILE LOCATION '/user/smurali2/Superhost_LA' AS SELECT Listing_ID,Host_Response_Rate,Review_Scores_Rating,Superhost FROM LA_Listings WHERE Listing_ID IS NOT NULL AND Host_Response_Rate != 'NA';
+
+--NY Listings for Superhost analysis
+
+CREATE TABLE Superhost_NY ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' STORED AS TEXTFILE LOCATION '/user/smurali2/Superhost_NY' AS SELECT Listing_ID,Host_Response_Rate,Review_Scores_Rating,Superhost FROM NY_Listings WHERE Host_Response_Rate != 'NA';
+
+--Reviews for LA Superhosts
+
+CREATE TABLE LA_Host ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' STORED AS TEXTFILE LOCATION '/user/smurali2/LA_Host' AS SELECT SLA.Listing_ID,SLA.Host_Response_Rate,SLA.Review_Scores_Rating,SLA.Superhost,regexp_replace(ar.comments,',','') AS Comments FROM Superhost_LA SLA,airbnb_reviews ar WHERE SLA.Listing_ID=ar.Listing_ID AND (Review_Scores_Rating>90 AND Host_Response_Rate = 1) AND Superhost=True;
+
+--ngrams for LA Superhost Reviews
+
+select explode(ngrams(sentences(lower(comments)),4,40)) from LA_Host;
+
