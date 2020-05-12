@@ -1,0 +1,81 @@
+
+--ip address used :129.150.71.75
+
+--Downloading Listings,Ratings and Reviews files:
+
+--1.We need to download the Airbnb Ratings,New York and Los Angeles Listings and Airbnb Reviews files from the Kaggle website. Below is the URL of the Kaggle website containing the 4 files,
+
+https://www.kaggle.com/samyukthamurali/airbnb-ratings-dataset
+
+--2.Click on the Download button and a zip file airbnb-ratings-dataset.zip is downloaded to your local system.
+
+--3.We used WinSCP software to transfer this zip file to the remote node of Oracle BDCE.
+
+--Unzip this file using the unzip command,
+
+unzip airbnb-ratings-dataset.zip
+ 
+--4.We need to download the following files using wget shell command in the remote node of Oracle BDCE.
+
+--a.New York Review Dates file:
+
+wget -O NY_Review_Dates.csv http://data.insideairbnb.com/united-states/ny/new-york-city/2020-03-13/visualisations/reviews.csv
+
+--b.Los Angeles Review Dates file:
+ 
+wget -O LA_Review_Dates.csv http://data.insideairbnb.com/united-states/ca/los-angeles/2020-03-13/visualisations/reviews.csv
+
+
+--5.Once the files are available we need to create a directory in HDFS called ‘airbnb_dataset’.
+
+hdfs dfs -mkdir airbnb_dataset
+
+--a.Create a sub-directory under airbnb_dataset as ‘airbnb_ratings’
+
+hdfs dfs -mkdir airbnb_dataset/airbnb_ratings
+
+--b.Put the airbnb_ratings_new.csv file from the home directory to airbnb_dataset/airbnb_ratings directory.
+
+hdfs dfs -put airbnb_ratings_new.csv airbnb_dataset/airbnb_ratings
+
+
+--6.a.Create a sub-directory named ‘airbnb_reviews’ under airbnb_dataset
+
+hdfs dfs -mkdir airbnb_dataset/airbnb_reviews
+
+--b.Put the airbnb-reviews.csv file from the home directory to airbnb_dataset/airbnb_reviews directory.
+
+hdfs dfs -put airbnb-reviews.csv airbnb_dataset/airbnb_reviews
+
+
+--7.a.Create a sub-directory named ‘LA_Listings’ under airbnb_dataset
+
+hdfs dfs -mkdir airbnb_dataset/LA_Listings
+
+--b.Put the LA_Listings.csv file into the LA_Listings directory using the below commands,
+
+hdfs dfs -put LA_Listings.csv airbnb_dataset/LA_Listings
+
+--8.Similarly,
+
+--a.Create a sub-directory named ‘NY_Listings’ under airbnb_dataset
+
+hdfs dfs -mkdir airbnb_dataset/NY_Listings
+hdfs dfs -put NY_Listings.csv airbnb_dataset/NY_Listings
+
+
+--b.Create a sub-directory named ‘LA_Review_Dates’ under airbnb_dataset
+
+hdfs dfs -mkdir airbnb_dataset/LA_Review_Dates
+hdfs dfs -put LA_Review_Dates.csv airbnb_dataset/LA_Review_Dates
+
+
+--c.Create a sub-directory named 'NY_Review_Dates' under airbnb_dataset
+
+hdfs dfs -mkdir airbnb_dataset/NY_Review_Dates
+hdfs dfs -put NY_Review_Dates.csv airbnb_dataset/NY_Review_Dates
+
+
+
+
+      
