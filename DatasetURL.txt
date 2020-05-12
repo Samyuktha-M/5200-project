@@ -1,14 +1,16 @@
-1.Ratings and Listings
+1.Ratings,Listings and Reviews
+
 Dataset URL:
 https://www.kaggle.com/samyukthamurali/airbnb-ratings-dataset
 
 Dataset source URL:
 https://public.opendatasoft.com/explore/dataset/airbnb-ratings/table/?disjunctive.city&disjunctive.neighbourhood_cleansed&sort=number_of_reviews
 http://insideairbnb.com/get-the-data.html (Los Angeles and New York cities-Respective Links for listings.csv files)
+https://public.opendatasoft.com/explore/dataset/airbnb-reviews/table/
 
 2.Review Dates
 
-Dataset source URL:
+Dataset Source URL
 http://insideairbnb.com/get-the-data.html (Los Angeles and New York cities- Respective links for reviews.csv files)
 
 Downloadable links: 
@@ -16,17 +18,7 @@ LA_Review_Dates :
 http://data.insideairbnb.com/united-states/ca/los-angeles/2020-03-13/visualisations/reviews.csv 
 
 NY_Review_Dates:
-http://data.insideairbnb.com/united-states/ny/new-york-city/2020-03-13/visualisations/reviews.csv 
-
-
-3.Reviews
-
-Dataset source URL:
-https://public.opendatasoft.com/explore/dataset/airbnb-reviews/table/
-
-Downloadable link:
-https://public.opendatasoft.com/explore/dataset/airbnb-reviews/download/?format=csv&timezone=America/Los_Angeles&lang=en&use_labels_for_header=true&csv_separator=%3B
-
+http://data.insideairbnb.com/united-states/ny/new-york-city/2020-03-13/visualisations/reviews.csv
 
 
 
